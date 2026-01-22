@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Portal | Fees & Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #eef3ff, #e3ecff); min-height: 100vh; padding: 32px 16px; }
+        .container { max-width: 780px; margin: 0 auto; background: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 25px 70px rgba(13,71,161,0.12); }
+        .header { background: linear-gradient(135deg, #0d47a1, #1e88e5); color: white; padding: 40px; text-align: center; }
+        .content { padding: 40px; }
+        .year-section { margin-bottom: 50px; }
+        .year-title { font-size: 24px; font-weight: 700; color: #0d47a1; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #1e88e5; }
+        
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 15px; }
+        .btn { display: flex; align-items: center; justify-content: center; padding: 16px; font-weight: 600; color: white; text-decoration: none; border-radius: 14px; transition: 0.3s; box-shadow: 0 6px 18px rgba(0,0,0,0.1); cursor: pointer; text-align: center; border:none; font-size: 15px; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        
+        .btn.partial { background: linear-gradient(135deg,#ffa726,#fb8c00); }
+        .btn.full { background: linear-gradient(135deg,#43a047,#2e7d32); }
+        .btn.skill { background: linear-gradient(135deg,#ff8f00,#ef6c00); }
+
+        .upload-container { margin-top: 15px; }
+        .upload-btn { display: inline-block; background: #424242; color: white; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; }
+        input[type="file"] { display: none; }
+        
+        .receipt-list { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .receipt-link { background: #f0f4ff; color: #0d47a1; padding: 8px 15px; border-radius: 8px; text-decoration: none; border: 1px solid #0d47a1; font-size: 13px; font-weight: 500; cursor: pointer; }
+        .receipt-link:hover { background: #0d47a1; color: white; }
+
+        .results-container { border: 1px solid #dde4ff; border-radius: 14px; overflow: hidden; height: 500px; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        iframe { width: 100%; height: 100%; border: none; }
+        
+        footer { text-align: center; padding: 20px; color: #5f7d9c; font-size: 14px; border-top: 1px solid #dde4ff; }
+        @media (max-width: 600px) { .btn-group { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Academic Portal</h1>
+        <p>Fees, Payments & Results • Annamacharya University</p>
+    </div>
+
+    <div class="content">
+        <div class="year-section">
+            <div class="year-title">1<sup>st</sup> Year Fees</div>
+            <div class="upload-container">
+                <label for="file-1" class="upload-btn">Upload 1st Year Receipt</label>
+                <input type="file" id="file-1" onchange="handleFileUpload(this, 'year1')">
+                <ul id="year1-list" class="receipt-list"></ul>
+            </div>
+        </div>
+
+        <div class="year-section">
+            <div class="year-title">2<sup>nd</sup> Year Fees</div>
+            <div class="btn-group">
+                <a href="https://aits.campx.in/aitspu/payments/public/academic-fees/details/2/payment/group/2" target="_blank" class="btn partial">Tuition Fee – Partial Pay</a>
+                <a href="https://aits.campx.in/aitspu/payments/public/academic-fees/details/full-pay/2/payment/group/2" target="_blank" class="btn full">Tuition Fee – Full Payment</a>
+            </div>
+            <div class="upload-container">
+                <label for="file-2" class="upload-btn">Upload 2nd Year Skill Receipt</label>
+                <input type="file" id="file-2" onchange="handleFileUpload(this, 'year2')">
+                <ul id="year2-list" class="receipt-list"></ul>
+            </div>
+        </div>
+
+        <div class="year-section">
+            <div class="year-title">3<sup>rd</sup> Year Fees</div>
+            <div class="btn-group">
+                <a href="https://aits.campx.in/aitspu/payments/public/academic-fees/details/full-pay/3/payment/group/1" target="_blank" class="btn skill">Skill Fee – Full</a>
+                <a href="https://aits.campx.in/aitspu/payments/public/academic-fees/details/3/payment/group/2" target="_blank" class="btn partial">Course Fee – Partial</a>
+            </div>
+        </div>
+
+        <div class="year-section">
+            <div class="year-title">Exam Results</div>
+            <div class="results-container">
+                <iframe src="https://aits.campx.in/aitspu/ums/results"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 Academic Portal • All rights reserved to muniswami
+    </footer>
+</div>
+
+<script>
+    // ఫైల్‌ను శాశ్వతంగా బ్రౌజర్‌లో సేవ్ చేసే ఫంక్షన్
+    function handleFileUpload(input, storageKey) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const fileData = {
+                name: file.name,
+                content: e.target.result // Base64 Data
+            };
+
+            let savedFiles = JSON.parse(localStorage.getItem(storageKey)) || [];
+            savedFiles.push(fileData);
+            localStorage.setItem(storageKey, JSON.stringify(savedFiles));
+            
+            displaySavedFiles(); // వెంటనే లిస్ట్‌లో చూపించడానికి
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // సేవ్ చేసిన ఫైల్స్‌ను స్క్రీన్ మీద చూపించే ఫంక్షన్
+    function displaySavedFiles() {
+        const keys = ['year1', 'year2'];
+        keys.forEach(key => {
+            const listElement = document.getElementById(key + '-list');
+            if (!listElement) return;
+            
+            listElement.innerHTML = '';
+            const files = JSON.parse(localStorage.getItem(key)) || [];
+            
+            files.forEach((file, index) => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.className = 'receipt-link';
+                a.textContent = '📄 ' + file.name;
+                
+                // ఫైల్ ఓపెన్ చేయడానికి ట్రిక్
+                a.onclick = function() {
+                    const win = window.open();
+                    win.document.write('<iframe src="' + file.content + '" frameborder="0" style="border:0; width:100%; height:100%;" allowfullscreen></iframe>');
+                };
+
+                li.appendChild(a);
+                listElement.appendChild(li);
+            });
+        });
+    }
+
+    // పేజీ లోడ్ అయినప్పుడు ఫైల్స్ చూపిస్తుంది
+    window.onload = displaySavedFiles;
+</script>
+
+</body>
+</html>
