@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Portal | Final Fixed</title>
+    <title>Academic Portal | Muniswami</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -35,11 +35,10 @@
         .file-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e2e8f0; }
         .delete-btn { background: #fee2e2; color: #dc2626; border: none; padding: 6px 15px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
 
-        .status { font-size: 13px; color: #059669; margin-top: 10px; font-weight: bold; text-align: center; }
+        .status { font-size: 13px; color: #059669; margin-top: 10px; font-weight: bold; text-align: center; min-height: 20px; }
         iframe { width: 100%; height: 550px; border: none; border-radius: 15px; margin-top: 20px; border: 1px solid #ddd; }
         
-        /* Muniswami Signature Style */
-        .footer-credit { text-align: right; margin-top: 20px; font-size: 14px; color: #64748b; font-weight: 600; padding: 10px; }
+        .footer-credit { text-align: right; margin-top: 25px; font-size: 14px; color: #64748b; font-weight: 600; padding: 10px; border-top: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -55,7 +54,7 @@
         <div class="year-title" style="margin-top: 30px;">📋 Exam Results</div>
         <iframe src="https://aits.campx.in/aitspu/ums/results"></iframe>
         
-        <div class="footer-credit">Developed by Muniswami.y</div>
+        <div class="footer-credit">Developed by Muniswami</div>
     </div>
 </div>
 
@@ -75,23 +74,23 @@
     const db = firebase.firestore();
     const storage = firebase.storage();
 
-    // Syntax Errors సరిచేయబడిన లింకులు
+    // Payment Links with Syntax Fix
     const allPayLinks = {
         2: [
             { name: "Tuition Partial", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/2/payment/group/2" },
             { name: "Tuition Full", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/full-pay/2/payment/group/2" }
         ],
         3: [
-            { name: "Tuition Fee pay Partial", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/3/payment/group/2" },
-            { name: "Tuition Fee pay Full", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/full-pay/2/payment/group/2" },
-            { name: "Skill Fee pay partial", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/3/payment/group/1" },
-            { name: "Skill Fee pay Full", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/full-pay/3/payment/group/1" }
+            { name: "Tuition Partial", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/3/payment/group/2" },
+            { name: "Tuition Full", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/full-pay/2/payment/group/2" },
+            { name: "Skill Partial", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/3/payment/group/1" },
+            { name: "Skill Full", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/full-pay/3/payment/group/1" }
         ],
         4: [
-            { name: "Tuition Fee pay Partial", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/4/payment/group/2" },
+            { name: "Tuition Partial", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/4/payment/group/2" },
             { name: "Tuition Full", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/full-pay/4/payment/group/2" },
-            { name: "Skill Fee pay partial", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/4/payment/group/1" },
-            { name: "Skill Fee pay Full", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/full-pay/4/payment/group/1" }
+            { name: "Skill Partial", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/4/payment/group/1" },
+            { name: "Skill Full", url: "https://aits.campx.in/aitspu/payments/public/academic-fees/details/full-pay/4/payment/group/1" }
         ]
     };
 
@@ -119,26 +118,42 @@
             </div>`;
     }
 
+    // Improved Upload with Progress
     async function handleUpload(input, year) {
         const file = input.files[0];
         if(!file) return;
+
         const statusLabel = document.getElementById('status-' + year);
-        statusLabel.innerText = "⏳ Uploading...";
+        statusLabel.innerText = "⏳ Initializing upload...";
+
         try {
             const fileName = Date.now() + "_" + file.name;
             const storageRef = storage.ref(`receipts/${year}/${fileName}`);
-            await storageRef.put(file);
-            const downloadURL = await storageRef.getDownloadURL();
-            await db.collection("receipts").add({
-                name: file.name,
-                fileName: fileName,
-                url: downloadURL,
-                year: year,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            statusLabel.innerText = "✅ Upload Successful!";
-            fetchFiles();
+            const task = storageRef.put(file);
+
+            // Track progress
+            task.on('state_changed', 
+                (snapshot) => {
+                    const percentage = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                    statusLabel.innerText = `⏳ Uploading: ${percentage}%`;
+                }, 
+                (error) => { throw error; }, 
+                async () => {
+                    const downloadURL = await storageRef.getDownloadURL();
+                    await db.collection("receipts").add({
+                        name: file.name,
+                        fileName: fileName,
+                        url: downloadURL,
+                        year: year,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    statusLabel.innerText = "✅ Upload Successful!";
+                    fetchFiles();
+                    setTimeout(() => { statusLabel.innerText = ""; }, 4000);
+                }
+            );
         } catch (error) {
+            statusLabel.innerText = "❌ Upload Failed!";
             alert("Error: " + error.message);
         }
     }
@@ -154,7 +169,7 @@
                 const item = doc.data();
                 list.innerHTML += `
                     <li class="file-item">
-                        <a href="${item.url}" target="_blank" style="text-decoration:none; color:#1e88e5; font-weight:600;">📄 ${item.name}</a>
+                        <div class="file-info"><a href="${item.url}" target="_blank" style="text-decoration:none; color:#1e88e5; font-weight:600;">📄 ${item.name}</a></div>
                         <button class="delete-btn" onclick="deleteFile('${doc.id}', '${year}', '${item.fileName}')">Delete</button>
                     </li>`;
             });
