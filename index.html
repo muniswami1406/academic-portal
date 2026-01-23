@@ -13,14 +13,14 @@
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f4f8; padding: 20px; }
         
-        /* Login Styling */
-        #login-container { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        /* Login UI */
+        #login-screen { max-width: 350px; margin: 120px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
         .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; outline: none; }
         .login-btn { width: 100%; padding: 12px; background: #1e88e5; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        
-        /* Your Original Portal Styling */
+
+        /* Portal UI */
         .container { max-width: 850px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .header { background: #1e88e5; color: white; padding: 30px; text-align: center; }
+        .header { background: #1e88e5; color: white; padding: 30px; text-align: center; position: relative; }
         .content { padding: 20px; }
         .year-section { margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e0e6ed; }
         .year-title { font-size: 20px; font-weight: bold; color: #0d47a1; margin-bottom: 15px; border-bottom: 2px solid #f0f4f8; padding-bottom: 5px; }
@@ -43,24 +43,28 @@
         iframe { width: 100%; height: 500px; border-radius: 10px; margin-top: 20px; border: 1px solid #ddd; }
         .footer { text-align: right; font-size: 12px; color: #888; margin-top: 20px; }
         .hidden { display: none !important; }
+
+        /* Sign Out Button Style */
+        .signout-btn { position: absolute; right: 20px; top: 20px; background: #d32f2f; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.3s; }
+        .signout-btn:hover { background: #b71c1c; }
     </style>
 </head>
 <body>
 
-<div id="login-container">
-    <h2 style="color:#1e88e5; margin-bottom: 15px;">Admin Login</h2>
-    <input type="text" id="user-id" class="login-input" placeholder="User ID">
-    <input type="password" id="user-pass" class="login-input" placeholder="Password">
-    <button class="login-btn" onclick="checkAuth()">Login</button>
-    <p id="auth-error" style="color:red; font-size:12px; margin-top:10px;"></p>
+<div id="login-screen">
+    <h2 style="margin-bottom:20px; color:#1e88e5;">Admin Login</h2>
+    <input type="text" id="user" class="login-input" placeholder="Username">
+    <input type="password" id="pass" class="login-input" placeholder="Password">
+    <button class="login-btn" onclick="checkLogin()">Access Portal</button>
+    <p id="err" style="color:red; font-size:12px; margin-top:10px;"></p>
 </div>
 
-<div id="portal-container" class="hidden">
+<div id="main-portal" class="hidden">
     <div class="container">
         <div class="header">
+            <button class="signout-btn" onclick="signOut()">Sign Out</button>
             <h1>Academic Portal</h1>
-            <p>Annamacharya university</p>
-            <button onclick="location.reload()" style="background:none; border:1px solid white; color:white; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:10px; margin-top:10px;">Logout</button>
+            <p>Annamacharya University</p>
         </div>
         <div class="content">
             <div id="years-app"></div>
@@ -72,22 +76,28 @@
 </div>
 
 <script>
-    // --- Authentication Logic ---
-    function checkAuth() {
-        const id = document.getElementById('user-id').value;
-        const pass = document.getElementById('user-pass').value;
-        const error = document.getElementById('auth-error');
-
-        if (id === "Muniswami14" && pass === "14061112") {
-            document.getElementById('login-container').classList.add('hidden');
-            document.getElementById('portal-container').classList.remove('hidden');
-            loadData(); // Your original load function
+    // 1. Auth & Sign Out Logic
+    function checkLogin() {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if (u === "Muniswami" && p === "1406") {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-portal').classList.remove('hidden');
+            loadData();
         } else {
-            error.innerText = "Access Denied: Invalid Credentials";
+            document.getElementById('err').innerText = "Wrong Username or Password!";
         }
     }
 
-    // --- Your Original Firebase Logic (DO NOT CHANGE) ---
+    function signOut() {
+        // Clear inputs and toggle screens
+        document.getElementById('user').value = "";
+        document.getElementById('pass').value = "";
+        document.getElementById('main-portal').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+    }
+
+    // 2. Original Firebase Setup
     const firebaseConfig = {
       apiKey: "AIzaSyDCbW11uH6UvnJTJLOV-dNQiXQ_w1gFRN0",
       authDomain: "academic-portal-b1122.firebaseapp.com",
@@ -115,11 +125,11 @@
                 ${btns}
                 <div class="upload-box">
                     <div class="input-row">
-                        <input type="text" id="n${i}" class="name-input" placeholder="Name (e.g. Exam)">
+                        <input type="text" id="n${i}" class="name-input" placeholder="Receipt Name">
                         <input type="text" id="l${i}" class="link-input" placeholder="Paste Link">
                     </div>
                     <button class="save-btn" onclick="saveData('${i}')">Save Receipt</button>
-                    <div id="s${i}" style="font-size:12px; text-align:center; margin-top:5px;"></div>
+                    <div id="s${i}" style="font-size:11px; text-align:center; margin-top:5px;"></div>
                 </div>
                 <div id="list${i}"></div>
             </div>`;
@@ -130,7 +140,7 @@
         const name = document.getElementById('n' + yearNum).value.trim() || "Receipt";
         const status = document.getElementById('s' + yearNum);
 
-        if(!link) return alert("Please paste a link!");
+        if(!link) return alert("Link is empty!");
 
         status.innerText = "⏳ Saving...";
         try {
@@ -145,15 +155,12 @@
             document.getElementById('n' + yearNum).value = "";
             loadData();
         } catch (e) {
-            alert("Error: " + e.message);
-            status.innerText = "❌ Failed";
+            status.innerText = "❌ Error";
         }
     }
 
     async function loadData() {
-        // Prevent loading data until logged in
-        if(document.getElementById('portal-container').classList.contains('hidden')) return;
-
+        if(document.getElementById('main-portal').classList.contains('hidden')) return;
         for (let i = 1; i <= 4; i++) {
             const container = document.getElementById('list' + i);
             const snap = await db.collection("receipt_links").where("year", "==", "year" + i).get();
@@ -173,13 +180,11 @@
     }
 
     async function deleteData(id) {
-        if(confirm("Delete this?")) {
+        if(confirm("Delete this receipt?")) {
             await db.collection("receipt_links").doc(id).delete();
             loadData();
         }
     }
-
-    // loadData will now be called by checkAuth instead of onload
 </script>
 </body>
 </html>
